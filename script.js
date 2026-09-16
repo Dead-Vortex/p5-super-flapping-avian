@@ -1,17 +1,31 @@
 //preview: python -m http.server
 
-let myBall;
+let avian;
+let tubes = [];
 
 function setup() {
   createCanvas(windowWidth-100, windowHeight-100);
   background(30);
   avian = new Avian(15, 0.8, -20, 60);
+  tubes.push(new Tube(100, 300, height / 3));
 }
 
 function draw() {
   background(30)
   avian.physicsTick(); // Check for keyboard input and update physics
   avian.display();    // Draw the ball
+
+  tubes[0].display();
+  if(tubes[0].pos.x < avian.pos.x && tubes[0].pos.x > 0) {
+    console.log("the thing")
+  }
+  if(tubes[0].pos.x < 0) {
+    // delete object from array
+  }
+  tubes[0].pos.x--;
+  // for(let tube of tubes) {
+  //   tube.display();
+  // }
 }
 
 class Avian {
@@ -73,5 +87,22 @@ class Avian {
     fill(255, 150, 0);
     noStroke();
     ellipse(this.pos.x, this.pos.y, this.r);
+  }
+}
+
+class Tube {
+  constructor(tubeWidth, gapSize, gapLocation) {
+    this.pos = createVector(width / 2, 0);
+    this.width = tubeWidth;
+    this.gapSize = gapSize;
+    this.gapLocation = gapLocation;
+    this.topRectHeight = height - this.gapLocation - (this.gapSize / 2);
+    this.bottomRectHeight = height - this.gapLocation + (this.gapSize / 2);
+  }
+
+  display() {
+    fill(0, 255, 0);
+    rect(this.pos.x, 0, this.width, this.topRectHeight);
+    rect(this.pos.x, this.bottomRectHeight, this.width, this.bottomRectHeight);
   }
 }
