@@ -4,12 +4,13 @@ let avian;
 let tubes = [];
 let scrollSpeed = 5;
 let tubeFrequency = 120;
+let score = 0;
 
 function setup() {
   createCanvas(windowWidth-100, windowHeight-100);
   background(30);
   avian = new Avian(15, 0.8, -20, 60);
-  tubes.push(new Tube(100, random(250, 400), random(100, height - 500)));
+  createTube();
 }
 
 function draw() {
@@ -17,24 +18,27 @@ function draw() {
   avian.physicsTick(); // Check for keyboard input and update physics
   avian.display();    // Draw the avian
 
-  for(let tube of tubes) {
-    tube.pos.x -= scrollSpeed;
-    tube.display();
-    if((tube.pos.x < avian.pos.x && tube.pos.x > 0) && (avian.pos.y < tube.gapLocation || avian.pos.y > tube.gapLocation + tube.gapSize) || avian.pos.y > height) {
-      console.log("death")
+  for(let i = 0; i < tubes.length; i++) {
+    tubes[i].pos.x -= scrollSpeed;
+    tubes[i].display();
+    if((tubes[i].pos.x < avian.pos.x && tubes[i].pos.x > 0) && (avian.pos.y < tubes[i].gapLocation || avian.pos.y > tubes[i].gapLocation + tubes[i].gapSize) || avian.pos.y > height) {
+      // console.log("death")
       scrollSpeed = 0;
+    }
+    if(tubes[i].pos.x < -60) {
+      score++;
+      tubes[i].pos.x = Infinity;
+      // console.log(tubes);
     }
   }
 
-  if(frameCount % tubeFrequency == 0) {
-    let newGapSize = random(200, 400);
-    let newGapLocation = random(100, height - newGapSize - 100);
-    tubes.push(new Tube(100, newGapSize, newGapLocation));
+  if(frameCount % Math.round(tubeFrequency) == 0) {
+    createTube();
 
-    if(Math.random() > 0.1) {
-      tubeFrequency--;
+    if(Math.random() < 0.2) {
+      tubeFrequency-= 1;
     }
-    if(Math.random() > 0.1) {
+    if(Math.random() < 0.2 && scrollSpeed != 0) {
       scrollSpeed+= 0.1;
     }
 
@@ -42,15 +46,12 @@ function draw() {
     // console.log(newGapLocation);
   }
 
-
-
-  if(tubes[0].pos.x < 0) {
-    // delete object from array
-  }
-
   // debug display
   fill(255, 255, 255);
-  text("DEBUG\nAvian Y: " + avian.pos.y + "\nScroll Speed: " + scrollSpeed, 0, 0);
+  //text("DEBUG\nAvian Y: " + avian.pos.y + "\nScroll Speed: " + scrollSpeed + "\nScore: " + score, 0, 0);
+  textAlign(CENTER, CENTER);
+  textSize(20);
+  text(score, width / 2, 50)
 }
 
 class Avian {
@@ -67,10 +68,13 @@ class Avian {
   // Method to check keyboard input and apply forces
   physicsTick() {
     this.vel -= this.gravity;
-    if(keyIsDown(UP_ARROW) || keyIsDown(32) || mouseIsPressed) {
+    if((keyIsDown(UP_ARROW) || keyIsDown(32) || mouseIsPressed)) {
       if(!this.isJumping) {
         this.vel = this.jumpHeight;
         this.isJumping = true;
+      }
+      if(scrollSpeed == 0) {
+        this.restart();
       }
     } else {
       this.isJumping = false
@@ -82,7 +86,6 @@ class Avian {
       this.pos.y = this.r / 2;
       this.vel = 0;
     }
-
     //console.log(this.pos);
   }
 
@@ -90,6 +93,15 @@ class Avian {
     fill(255, 150, 0);
     noStroke();
     ellipse(this.pos.x, this.pos.y, this.r);
+  }
+
+  restart() {
+    this.pos.y = height / 4 + this.jumpHeight;
+    tubes = [];
+    scrollSpeed = 5;
+    tubeFrequency = 120;
+    // createTube();
+    score = 0
   }
 }
 
@@ -106,4 +118,10 @@ class Tube {
     rect(this.pos.x, 0, this.width, this.gapLocation);
     rect(this.pos.x, this.gapLocation + this.gapSize, this.width, this.gapLocation + this.gapSize);
   }
+}
+
+function createTube() {
+    let newGapSize = random(200, 400);
+    let newGapLocation = random(100, height - newGapSize - 100);
+    tubes.push(new Tube(100, newGapSize, newGapLocation));
 }
