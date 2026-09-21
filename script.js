@@ -1,11 +1,13 @@
 //preview: python -m http.server
 
+// define variables
 let avian;
 let tubes = [];
 let scrollSpeed = 5;
 let tubeFrequency = 120;
 let score = 0;
 
+// setup canvas and create inital tube and avian
 function setup() {
   createCanvas(windowWidth-100, windowHeight-100);
   background(30);
@@ -18,18 +20,27 @@ function draw() {
   avian.physicsTick(); // Check for keyboard input and update physics
   avian.display();    // Draw the avian
 
-  for(let i = 0; i < tubes.length; i++) {
+  // iterate through array of tubes
+  let i = 0;
+  while(i < tubes.length) {
     tubes[i].pos.x -= scrollSpeed;
     tubes[i].display();
+    // collision detection
     if((tubes[i].pos.x < avian.pos.x && tubes[i].pos.x > 0) && (avian.pos.y < tubes[i].gapLocation || avian.pos.y > tubes[i].gapLocation + tubes[i].gapSize) || avian.pos.y > height) {
       // console.log("death")
       scrollSpeed = 0;
     }
-    if(tubes[i].pos.x < -60) {
+    // scoring
+    if(tubes[i].pos.x < 60 && !tubes[i].hasScored) {
       score++;
-      tubes[i].pos.x = Infinity;
-      // console.log(tubes);
+      tubes[i].hasScored = true;
     }
+    if(tubes[i].pos.x < -100) {
+      //tubes[i].pos.x = Infinity;
+      tubes.shift();
+      i--;
+    }
+    i++;
   }
 
   if(frameCount % Math.round(tubeFrequency) == 0) {
@@ -111,12 +122,13 @@ class Tube {
     this.width = tubeWidth;
     this.gapSize = gapSize;
     this.gapLocation = gapLocation;
+    this.hasScored = false
   }
 
   display() {
     fill(0, 255, 0);
     rect(this.pos.x, 0, this.width, this.gapLocation);
-    rect(this.pos.x, this.gapLocation + this.gapSize, this.width, this.gapLocation + this.gapSize);
+    rect(this.pos.x, this.gapLocation + this.gapSize, this.width, height);
   }
 }
 
