@@ -26,7 +26,7 @@ function draw() {
     tubes[i].pos.x -= scrollSpeed;
     tubes[i].display();
     // collision detection
-    if(((tubes[i].pos.x < avian.pos.x && tubes[i].pos.x > 0) && (avian.pos.y < tubes[i].gapLocation || avian.pos.y > tubes[i].gapLocation + tubes[i].gapSize) || avian.pos.y > height) && avian.deathFrame == -1) {
+    if(((tubes[i].pos.x < avian.pos.x + avian.r / 2 && tubes[i].pos.x + tubes[i].width / 2 > 0) && (avian.pos.y - avian.r / 2 < tubes[i].gapLocation || avian.pos.y + avian.r / 2 > tubes[i].gapLocation + tubes[i].gapSize) || avian.pos.y + avian.r / 2 > height) && avian.deathFrame == -1) {
       // game over
       scrollSpeed = 0;
       avian.deathFrame = frameCount;
