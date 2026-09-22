@@ -26,9 +26,10 @@ function draw() {
     tubes[i].pos.x -= scrollSpeed;
     tubes[i].display();
     // collision detection
-    if((tubes[i].pos.x < avian.pos.x && tubes[i].pos.x > 0) && (avian.pos.y < tubes[i].gapLocation || avian.pos.y > tubes[i].gapLocation + tubes[i].gapSize) || avian.pos.y > height) {
-      // console.log("death")
+    if(((tubes[i].pos.x < avian.pos.x && tubes[i].pos.x > 0) && (avian.pos.y < tubes[i].gapLocation || avian.pos.y > tubes[i].gapLocation + tubes[i].gapSize) || avian.pos.y > height) && avian.deathFrame == -1) {
+      // game over
       scrollSpeed = 0;
+      avian.deathFrame = frameCount;
     }
     // scoring
     if(tubes[i].pos.x < 60 && !tubes[i].hasScored) {
@@ -74,17 +75,19 @@ class Avian {
     this.terminalVelocity = terminalVelocity;
     this.gravity = gravity;
     this.isJumping = false
+    this.deathFrame = -1;
   }
 
   // Method to check keyboard input and apply forces
   physicsTick() {
     this.vel -= this.gravity;
-    if((keyIsDown(UP_ARROW) || keyIsDown(32) || mouseIsPressed)) {
-      if(!this.isJumping) {
-        this.vel = this.jumpHeight;
-        this.isJumping = true;
-      }
-      if(scrollSpeed == 0) {
+    if(keyIsDown(UP_ARROW) || keyIsDown(32) || mouseIsPressed) {
+      if(scrollSpeed != 0) {
+        if(!this.isJumping) {
+          this.vel = this.jumpHeight;
+          this.isJumping = true;
+        }
+      } else if(frameCount > this.deathFrame + 70) {
         this.restart();
       }
     } else {
@@ -111,8 +114,9 @@ class Avian {
     tubes = [];
     scrollSpeed = 5;
     tubeFrequency = 120;
+    this.deathFrame = -1;
     // createTube();
-    score = 0
+    score = 0;
   }
 }
 
